@@ -9,7 +9,7 @@ pygame.font.init()
 
 clock = pygame.time.Clock()
 FPS = 60
-
+nouvelle_variable_test = " "
 
 class Jeu:
 
