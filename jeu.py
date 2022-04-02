@@ -1,7 +1,7 @@
 import pygame
 import math
 from monstre import *
-from event_boss import Event_Boss
+from level import Level
 from tank import Tank
 from Son import Son
 
@@ -9,80 +9,65 @@ pygame.font.init()
 
 clock = pygame.time.Clock()
 FPS = 60
-nouvelle_variable_test = " "
+
 
 class Jeu:
 
     def __init__(self):
         self.son = Son()
-        self.level = 0
+        self.level = Level(self)
         self.is_playing = False
         self.all_joueurs = pygame.sprite.Group()
         self.joueur = Tank(self)
-        self.boss_event = Event_Boss(self)
         self.all_joueurs.add(self.joueur)
         self.all_monstres = pygame.sprite.Group()
-        self.all_munition = pygame.sprite.Group()
+        self.all_munitions = pygame.sprite.Group()
+        self.all_boss = pygame.sprite.Group()
         self.font = pygame.font.SysFont("Rubik", 16)
         self.score = 0
         self.presse = {}
 
 
     def start(self):
+        self.all_monstres = pygame.sprite.Group()
+        self.level.all_boss = pygame.sprite.Group()
         self.is_playing = True
-        self.boss_event.jeu.level += 1
-        self.boss_event.percent = 0
-
-        if not self.level == 10:
-            self.monstre(Fantome)
-            self.monstre(Fantome)
-            self.monstre(Fantome)
-            if self.level >= 3:
-                self.monstre(Fantome)
-                self.monstre(Fantome)
-                self.monstre(Fantome)
-            if self.level >= 5:
-                self.monstre(Grand_Fantome)
-        else:
-            self.monstre(Big_Fantome)
+        self.level.number = 0
+        self.level.start()
 
     def game_over(self):
         print("game over")
         self.son.play("game_over")
-        self.all_monstres = pygame.sprite.Group()
-        self.boss_event.boss = pygame.sprite.Group()
         self.joueur.vie = self.joueur.vie_max
         self.is_playing = False
         self.score = 0
-        self.level = 0
+        self.level.number = 0
 
     def update(self):
-        self.boss_event.add_percent()
+        #Affichage des informations du jeu en haut à gauche
         score_text = self.font.render(f"score : {self.score}", 1, (255, 255, 255))
-        level_text = self.font.render(f"level : {self.level}", 1, (255, 255, 255))
+        level_text = self.font.render(f"level : {self.level.number}", 1, (255, 255, 255))
         fenetre.blit(score_text, (20, 20))
         fenetre.blit(level_text, (20, 40))
-        # montrer le joueur
-        fenetre.blit(jeu.joueur.image, jeu.joueur.rect)
-        # bar de vie du joueur
-        jeu.joueur.update_vie_bar(fenetre)
+        # montrer le joueur et sa barre de vie
+        fenetre.blit(self.joueur.image, self.joueur.rect)
+        self.joueur.update_vie_bar(fenetre)
         # munition
-        jeu.joueur.all_munition.draw(fenetre)
+        self.joueur.all_munitions.draw(fenetre)
         # monstre
-        jeu.all_monstres.draw(fenetre)
+        self.all_monstres.draw(fenetre)
+        #Boss/missiles
+        self.all_boss.draw(fenetre)
 
-        # diriger la munition
-        for munition in jeu.joueur.all_munition:
-            munition.move(jeu.joueur, jeu)
-        for monstre in jeu.all_monstres:
-            monstre.move()
-            monstre.update_vie_bar(fenetre)
-
-        for boss in self.boss_event.boss:
+        # déplacements des objets autonomes
+        for munition in self.joueur.all_munitions:
+            munition.move(jeu)
+        for monstre in self.all_monstres:
+            monstre.move(fenetre)
+        for boss in self.all_boss:
             boss.move()
-
-        jeu.boss_event.boss.draw(fenetre)
-        jeu.boss_event.update_bar(fenetre)
+        #Barre de défilement du niveau
+        jeu.level.update_level_advance(fenetre)
 
         # diriger le joueur
         if jeu.presse.get(pygame.K_UP) and jeu.joueur.rect.y > 30:

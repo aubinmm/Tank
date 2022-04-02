@@ -12,7 +12,7 @@ class Tank(pygame.sprite.Sprite):
         self.image = pygame.image.load("space-invaders.png")
         self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
-        self.all_munition = pygame.sprite.Group()
+        self.all_munitions = pygame.sprite.Group()
         self.rect.x = 950
         self.rect.y = 300
         self.origin_image = self.image
@@ -27,19 +27,26 @@ class Tank(pygame.sprite.Sprite):
     def launch_projectile(self):
         if self.jeu.is_playing:
             self.jeu.son.play("tir")
-            self.all_munition.add(Munition(self))
+            self.all_munitions.add(Munition(self))
+
+    def degats(self,dommages):
+        self.vie -= dommages
 
     def move_up(self):
         self.rect.y -= self.vitesse
 
+
     def move_down(self):
         self.rect.y += self.vitesse
+
 
     def move_right(self):
         self.rect.x += self.vitesse
 
+
     def move_left(self):
         if not self.jeu.check_collision(self, self.jeu.all_monstres):
             self.rect.x -= self.vitesse
+
 
 

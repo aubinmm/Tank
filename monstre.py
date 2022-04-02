@@ -1,11 +1,13 @@
 import pygame
 import random
+import math
 
 
 class Monstre(pygame.sprite.Sprite):
 
     def __init__(self, jeu, joueur, taille):
         super().__init__()
+        self.type = ""
         self.attaque = 0.1
         self.jeu = jeu
         self.joueur = joueur
@@ -23,9 +25,6 @@ class Monstre(pygame.sprite.Sprite):
     def degats(self, nombre):
         self.vie -= nombre
 
-    def tire(self, degat):
-        self.jeu.joueur.vie -= degat
-
 
     def update_vie_bar(self, surface):
         # afficher la bar de vie
@@ -33,20 +32,21 @@ class Monstre(pygame.sprite.Sprite):
         pygame.draw.rect(surface, (236, 57, 22 ), [self.rect.x, self.rect.y - 15, self.vie, 5])
 
 
-    def move(self):
+    def move(self,fenetre):
         if not self.jeu.check_collision(self, self.jeu.all_joueurs):
             self.rect.x += self.vitesse
         else:
-            self.tire(self.attaque)
+            self.jeu.joueur.degats(self.attaque)
 
         if self.vie <= 0:
             self.vie = self.vie_max
             self.rect.x = -100
             self.rect.y = random.randint(50, 500)
             self.jeu.score += self.point
-            if self.jeu.boss_event.is_full_loaded():
-                self.jeu.all_monstres.remove(self)
-                self.jeu.boss_event.attempt_fall()
+            if self.jeu.level.is_full_loaded():
+                print("suppr tué ", len(self.jeu.all_monstres))
+                self.remove(self.jeu.all_monstres)
+                #self.jeu.level.attempt_fall()
 
 
 
@@ -54,16 +54,18 @@ class Monstre(pygame.sprite.Sprite):
             self.vie = self.vie_max
             self.rect.x = -100
             self.rect.y = random.randint(50, 500)
-            if self.jeu.boss_event.is_full_loaded():
-                self.jeu.all_monstres.remove(self)
-                self.jeu.boss_event.attempt_fall()
+            if self.jeu.level.is_full_loaded():
+                print("suppr droite " , len(self.jeu.all_monstres))
+                self.remove(self.jeu.all_monstres)
+                #  self.jeu.level.attempt_fall()
 
-
+        self.update_vie_bar(fenetre)
 
 class Fantome(Monstre):
 
     def __init__(self, jeu, joueur):
         super().__init__(jeu, joueur, 50)
+        self.type = "Fantome"
         self.vie = 50
         self.vie_max = 50
         self.vitesse = random.randint(5, 7)
@@ -75,6 +77,7 @@ class Grand_Fantome(Monstre):
 
     def __init__(self, jeu, joueur):
         super().__init__(jeu, joueur, 200)
+        self.type = "Grand_Fantome"
         self.vie = 200
         self.vie_max = 200
         self.vitesse = 3
@@ -86,6 +89,7 @@ class Big_Fantome(Monstre):
 
     def __init__(self, jeu, joueur):
         super().__init__(jeu, joueur, 600)
+        self.type = "Big_Fantome"
         self.vie = 600
         self.vie_max = 600
         self.vitesse = 1
