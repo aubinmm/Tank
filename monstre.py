@@ -38,26 +38,13 @@ class Monstre(pygame.sprite.Sprite):
         else:
             self.jeu.joueur.degats(self.attaque)
 
+        #Si le monstre est tué
         if self.vie <= 0:
-            self.vie = self.vie_max
-            self.rect.x = -100
-            self.rect.y = random.randint(50, 500)
             self.jeu.score += self.point
-            if self.jeu.level.is_full_loaded():
-                print("suppr tué ", len(self.jeu.all_monstres))
-                self.remove(self.jeu.all_monstres)
-                #self.jeu.level.attempt_fall()
-
-
-
+            self.remove(self.jeu.all_monstres)
+        #Si monstre sort de l'écran
         if self.rect.x > 1300:
-            self.vie = self.vie_max
-            self.rect.x = -100
-            self.rect.y = random.randint(50, 500)
-            if self.jeu.level.is_full_loaded():
-                print("suppr droite " , len(self.jeu.all_monstres))
-                self.remove(self.jeu.all_monstres)
-                #  self.jeu.level.attempt_fall()
+            self.remove(self.jeu.all_monstres)
 
         self.update_vie_bar(fenetre)
 
